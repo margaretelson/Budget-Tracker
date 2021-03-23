@@ -2,9 +2,11 @@ let db;
 const request = indexedDB.open("budget", 1)
 
 request.onupgradeneeded = event => {
-    const db = request.result;
+    event.target.result.createObjectStore("pending", {
+        keyPath: "id",
+        autoIncrement: true
+    })
     console.log(event)
-
 }
 
 request.onerror = err => {
@@ -18,8 +20,10 @@ request.onsuccess = event => {
     }
 }
 
-//function saveInput
-//function checkDb
+function saveInput(record){
+    
+}
+
 getAll.onsuccess
 
 window.addEventListener("online", checkDb)
