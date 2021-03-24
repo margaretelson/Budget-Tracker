@@ -30,7 +30,7 @@ request.onsuccess = (event) => {
   }
 };
 
-function saveInput(record) {
+function saveRecord(record) {
     console.log("saving into indexdb")
   const transaction = db.transaction("pending", "readwrite");
   const store = transaction.objectStore("pending");
