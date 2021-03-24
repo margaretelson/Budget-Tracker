@@ -7,63 +7,54 @@ const indexedDB =
 
 let db;
 const request = indexedDB.open("budget", 1);
-console.log("first console")
 
-request.onupgradeneeded = (event) => {
-  event.target.result.createObjectStore("pending", {
-    keyPath: "id",
-    autoIncrement: true,
-  });
-  console.log(event);
-  console.log("Sup");
+request.onupgradeneeded = ({ target }) => {
+  let db = target.result;
+  db.createObjectStore("pending", { autoIncrement: true });
 };
 
-request.onerror = (err) => {
-  console.log(err);
-};
+request.onsuccess = ({ target }) => {
+  db = target.result;
 
-request.onsuccess = (event) => {
-  db = event.target.result;
   if (navigator.onLine) {
-    checkDb();
-    console.log("I'm online")
+    checkDatabase();
   }
 };
 
+request.onerror = function (event) {
+  console.log("Woops! " + event.target.errorCode);
+};
+
 function saveRecord(record) {
-    console.log("saving into indexdb")
-  const transaction = db.transaction("pending", "readwrite");
+  const transaction = db.transaction(["pending"], "readwrite");
   const store = transaction.objectStore("pending");
   store.add(record);
 }
 
-function checkDb() {
-  const transaction = db.transaction("pending", "readwrite");
+function checkDatabase() {
+  const transaction = db.transaction(["pending"], "readwrite");
   const store = transaction.objectStore("pending");
   const getAll = store.getAll();
-
-  getAll.onsuccess = () => {
-    getAll.onsuccess = function () {
-      if (getAll.result.length > 0) {
-        fetch("/api/transaction/bulk", {
-          method: "POST",
-          body: JSON.stringify(getAll.result),
-          headers: {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-          },
+  getAll.onsuccess = function () {
+    if (getAll.result.length > 0) {
+      fetch("/api/transaction/bulk", {
+        method: "POST",
+        body: JSON.stringify(getAll.result),
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => {
+          return response.json();
         })
-          .then((response) => response.json())
-          .then(() => {
-            const transaction = db.transaction(["pending"], "readwrite");
-
-            const store = transaction.objectStore("pending");
-
-            store.clear();
-          });
-      }
-    };
+        .then(() => {
+          const transaction = db.transaction(["pending"], "readwrite");
+          const store = transaction.objectStore("pending");
+          store.clear();
+        });
+    }
   };
 }
 
-window.addEventListener("online", checkDb);
+window.addEventListener("online", checkDatabase);
