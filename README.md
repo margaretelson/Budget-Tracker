@@ -18,7 +18,7 @@ The Budget Tracker was created with mongoose, javascript, html, and css, along w
 [Click here for a link to the live website](https://afternoon-thicket-71782.herokuapp.com/)
 
 ## Image
-![Screenshot Deployed Website](../budget.png)
+![Screenshot Deployed Website](./budget.png)
 
 
 ## Installation
